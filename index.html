@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <!-- Copyright © 2020 by m@mcloc.cn -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>逍逍马儿与肖肖玉儿</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        .wrap {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            background-image: url(https://abc.mcloc.cn/abc/bing/);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .wrap-son {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            background: rgba(59, 59, 59, 0.3);
+        }
+
+        .jumbotron {
+            background: rgba(255, 255, 255, 0);
+            color: #f5f5f5;
+        }
+
+        .love {
+            color: #ffffff;
+            margin: 0 20px;
+            line-height: 1.3;
+            font-weight: 300;
+        }
+
+        .hans-container {
+            position: fixed;
+            bottom: 0px;
+            width: 100%;
+            height: 120px;
+            z-index: 1;
+        }
+
+        .timer b {
+            font-size: 50px;
+        }
+
+        #s {
+            font-size: 80px;
+        }
+
+        #updatalove,
+        #to_comments {
+            margin: 0 10px;
+        }
+
+        .copy {
+            position: absolute;
+            bottom: 0;
+            color: #ffffff;
+            font-size: 12px;
+        }
+
+        /* 评论 */
+        .comment {
+            margin-top: 30px;
+            margin-bottom: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="wrap-son">
+            <div class="container-fluid">
+                <div class="box">
+                    <div class="jumbotron text-center">
+                        <h1>我们相恋了</h1>
+                        <h3 class="timer">
+                            <div class="row">
+                                <b id="d"></b> 天 <b id="h"></b> 时 <b id="m"></b> 分
+                            </div>
+                            <div class="row">
+                                <b id="s"></b> 秒
+                            </div>
+                        </h3>
+                        <p>
+                            <a id="updatalove" class="btn btn-primary btn-lg" role="button">几行情书</a>
+                            <a id="to_comments" class="btn btn-primary btn-lg" role="button">留个言吧</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <h4 class="love text-center"><span class="love-son"></span></h4>
+                </div>
+
+                <div class="row">
+                    <p class="copy text-center col-xs-12 col-sm-12">京ICP备xxxxxxxx号 京公网安备xxxxxxxxxxxxxx号</p>
+                </div>
+
+                <div id="hans-bolang"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" id="comments">
+        <div class="row comment">
+            <div class="col-xs-10 col-sm-10 col-md-6 col-xs-push-1 col-sm-push-1 col-md-push-3">
+                <h2>留言：</h2>
+                <div id="vcomments"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery-1.11.0.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src='js/Valine.min.js'></script><!-- Valine 评论系统 -->
+
+    <!-- 计时器 -->
+    <script>
+        function timer() {
+            var start = new Date(2020, 06, 31, 13, 14, 00); // 2020.07.31 13:14:00
+            var t = new Date() - start;
+            var h = ~~(t / 1000 / 60 / 60 % 24);
+            if (h < 10) {
+                h = "0" + h;
+            }
+            var m = ~~(t / 1000 / 60 % 60);
+            if (m < 10) {
+                m = "0" + m;
+            }
+
+            var s = ~~(t / 1000 % 60);
+            if (s < 10) {
+                s = "0" + s;
+            }
+            document.getElementById('d').innerHTML = ~~(t / 1000 / 60 / 60 / 24);
+            document.getElementById('h').innerHTML = h;
+            document.getElementById('m').innerHTML = m;
+            document.getElementById('s').innerHTML = s;
+        }
+        timer();
+        setInterval(timer, 1000);
+    </script>
+
+    <script>
+        var oComments = document.querySelector("#comments");
+        var oCommentsTop = Math.round(oComments.offsetTop);
+        //运动框架
+        function move() {
+            // 1. 关闭开启定时器;
+            clearInterval(timer);
+            var timer = setInterval(function () {
+                // 2. 计算速度;
+                var iNow = document.documentElement.scrollTop || document.body.scrollTop; //100
+                iNow = Math.round(iNow);
+                var speed = (oCommentsTop - iNow) / 10;
+                // 3. 速度取整;
+                if (speed > 0) {
+                    speed = Math.ceil(speed);
+                } else {
+                    speed = Math.floor(speed);
+                }
+                document.documentElement.scrollTop = document.body.scrollTop = iNow + speed + 1;
+                // 4. 终止条件;
+                if (iNow >= oCommentsTop) {
+                    clearInterval(timer);
+                }
+            }, 20)
+        }
+
+        to_comments.onclick = move;
+    </script>
+
+    <!-- 情话接口 -->
+    <script>
+        //进入页面时请求
+        $.ajax({
+            url: 'php/love.php',
+            type: "GET",
+            async: true,
+            data: "type=json",
+            dataType: "json",
+            success: function (loveJson) {
+                let love = loveJson["data"];
+                $(".love-son").append(love);
+            },
+            error: function (textStatus) {
+                console.log(JSON.stringify(textStatus));
+            }
+        });
+
+        //点击时请求
+        $(".love").click(function () {
+            $.ajax({
+                url: 'php/love.php',
+                type: "GET",
+                async: true,
+                data: "type=json",
+                dataType: "json",
+                success: function (loveJson) {
+                    let love = loveJson["data"];
+                    love = `<span class="love-son"">${love}</span>`;
+                    $(".love").children().replaceWith(love);
+                },
+                error: function (textStatus) {
+                    console.log(JSON.stringify(textStatus));
+                }
+            });
+        });
+
+        $("#updatalove").click(function () {
+            $.ajax({
+                url: 'php/love.php',
+                type: "GET",
+                async: true,
+                data: "type=json",
+                dataType: "json",
+                success: function (loveJson) {
+                    let love = loveJson["data"];
+                    love = `<span class="love-son"">${love}</span>`;
+                    $(".love").children().replaceWith(love);
+                },
+                error: function (textStatus) {
+                    console.log(JSON.stringify(textStatus));
+                }
+            });
+        });
+    </script>
+
+    <!-- Valine 评论系统； 由 LeanCloud 管理数据 -->
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '你的appId',
+            appKey: '你的appKey'
+        })
+    </script>
+
+    <!-- 底部波浪 -->
+    <script src="php/wave.php"></script>
+</body>
+
+</html>
