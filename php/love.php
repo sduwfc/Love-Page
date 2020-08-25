@@ -1,11 +1,12 @@
 <?php
 /*
+版权信息可删除，但请勿修改
 Copyright © 2020 by m@mcloc.cn
 */
 $type = $_REQUEST['type'];
 $love_id = $_REQUEST['id'];
 include "conn.php";
-$sql = "SELECT COUNT(*) FROM love_sentence";
+$sql = "SELECT COUNT(*) FROM love_sentence";//love_sentence为数据表
 $result_count = $conn->query($sql);
 $love_count_arr = $result_count->fetch_all();
 $love_count = $love_count_arr[0][0];
