@@ -3,7 +3,7 @@
 
 ### 1.效果展示
 
-![demo](https://github.com/androidmumo/Love-Page/blob/master/img/image.png)
+![demo](img/image.png)
 
 ### 2.DEMO
 
